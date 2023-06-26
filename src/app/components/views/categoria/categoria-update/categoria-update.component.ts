@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Categoria } from '../categoria.model';
+import { CategoriaService } from '../categoria.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-categoria-update',
@@ -7,9 +10,37 @@ import { Component, OnInit } from '@angular/core';
 })
 export class CategoriaUpdateComponent implements OnInit {
 
-  constructor() { }
+  categoria: Categoria = {
+    id: '',
+    nome: '',
+    descricao: ''
+  }
+
+  constructor(private service: CategoriaService, private route: ActivatedRoute, private router: Router) { }
 
   ngOnInit() {
+   this.categoria.id = this.route.snapshot.paramMap.get('id')!;
+   this.findById(); 
+  }
+
+  findById(){
+    this.service.findById(this.categoria.id!).subscribe((resposta) => {
+      this.categoria.nome = resposta.nome;
+      this.categoria.descricao = resposta.descricao;
+    })
+  }
+
+  update(): void{
+    this.service.update(this.categoria).subscribe((resposta) => {
+      this.router.navigate(['categorias']);
+      this.service.mensagem('Categoria atualizada com sucesso!');
+    }, err =>{
+      console.log(err);
+    })
+  }
+
+  cancel(): void {
+    this.router.navigate(['categorias']);
   }
 
 }
